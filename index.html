@@ -1,0 +1,1486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>HAYATI.OS</title>
+
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+
+:root{
+  --bg:#050507;
+  --panel:rgba(20,18,24,.78);
+  --line:rgba(255,255,255,.11);
+  --text:#f7f3f8;
+  --muted:#918895;
+  --purple:#a86cff;
+  --pink:#ff79bd;
+  --orange:#ff9d62;
+  --green:#75e5a0;
+}
+
+html,body{
+  width:100%;
+  height:100%;
+  margin:0;
+  overflow:hidden;
+  background:#000;
+}
+
+body{
+  font-family:Inter,Arial,sans-serif;
+  color:var(--text);
+  touch-action:none;
+}
+
+button,input{
+  font:inherit;
+}
+
+/* ---------- BACKGROUND ---------- */
+
+#app{
+  position:fixed;
+  inset:0;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at 15% 15%,rgba(168,108,255,.13),transparent 30%),
+    radial-gradient(circle at 90% 85%,rgba(255,121,189,.08),transparent 28%),
+    #050507;
+}
+
+#noise{
+  position:absolute;
+  inset:0;
+  opacity:.035;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events:none;
+}
+
+/* ---------- BOOT ---------- */
+
+#boot{
+  position:absolute;
+  inset:0;
+  background:#000;
+  z-index:100;
+  padding:35px 28px;
+  font-family:monospace;
+  color:#bda5ca;
+  font-size:12px;
+  line-height:2;
+  transition:opacity .8s;
+}
+
+#boot.hidden{
+  opacity:0;
+  pointer-events:none;
+}
+
+.boot-title{
+  color:#fff;
+  font-size:21px;
+  margin-bottom:25px;
+  letter-spacing:4px;
+}
+
+.boot-green{color:var(--green)}
+.boot-purple{color:var(--purple)}
+.boot-orange{color:var(--orange)}
+
+#bootButton{
+  margin-top:25px;
+  border:1px solid rgba(255,255,255,.2);
+  background:#0e0c11;
+  color:#fff;
+  padding:12px 18px;
+  border-radius:8px;
+  font-family:monospace;
+  font-size:11px;
+  letter-spacing:2px;
+}
+
+/* ---------- LOCK SCREEN ---------- */
+
+#lock{
+  position:absolute;
+  inset:0;
+  z-index:50;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  background:
+    radial-gradient(circle at 50% 35%,rgba(168,108,255,.15),transparent 30%),
+    #060507;
+  transition:transform .8s cubic-bezier(.7,0,.2,1);
+}
+
+#lock.unlocked{
+  transform:translateY(-110%);
+}
+
+.clock{
+  font-size:clamp(65px,18vw,105px);
+  font-weight:200;
+  letter-spacing:-5px;
+}
+
+.date{
+  margin-top:7px;
+  color:var(--muted);
+  font-size:12px;
+  letter-spacing:3px;
+  text-transform:uppercase;
+}
+
+.lock-name{
+  margin-top:80px;
+  color:#d9cde0;
+  font-family:Georgia,serif;
+  font-size:24px;
+}
+
+.swipe{
+  position:absolute;
+  bottom:55px;
+  color:#766c7c;
+  font-size:10px;
+  letter-spacing:3px;
+  text-transform:uppercase;
+}
+
+.swipe::after{
+  content:"";
+  display:block;
+  width:42px;
+  height:1px;
+  background:#6d6174;
+  margin:13px auto 0;
+  animation:pulse 1.7s infinite;
+}
+
+@keyframes pulse{
+  0%,100%{opacity:.25;transform:scaleX(.5)}
+  50%{opacity:1;transform:scaleX(1)}
+}
+
+/* ---------- HOME ---------- */
+
+#home{
+  position:absolute;
+  inset:0;
+  padding:22px;
+  padding-top:45px;
+  opacity:0;
+  transform:scale(.96);
+  transition:.8s ease;
+}
+
+#home.visible{
+  opacity:1;
+  transform:scale(1);
+}
+
+.status{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:10px;
+  color:#807785;
+  margin-bottom:42px;
+}
+
+.status-left{
+  letter-spacing:2px;
+}
+
+.status-right{
+  display:flex;
+  gap:9px;
+  align-items:center;
+}
+
+.battery{
+  width:22px;
+  height:10px;
+  border:1px solid #817783;
+  border-radius:3px;
+  padding:1px;
+}
+
+.battery div{
+  width:75%;
+  height:100%;
+  background:#a77aff;
+  border-radius:1px;
+}
+
+.home-title{
+  font-family:Georgia,serif;
+  font-size:31px;
+  margin-bottom:5px;
+}
+
+.home-sub{
+  color:#807783;
+  font-size:11px;
+  margin-bottom:28px;
+}
+
+.apps{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:14px;
+  max-width:520px;
+  margin:auto;
+}
+
+.app-icon{
+  aspect-ratio:1;
+  border:1px solid var(--line);
+  border-radius:20px;
+  background:linear-gradient(145deg,rgba(255,255,255,.07),rgba(255,255,255,.025));
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  transition:.2s;
+  position:relative;
+  overflow:hidden;
+}
+
+.app-icon:active{
+  transform:scale(.94);
+}
+
+.app-symbol{
+  width:43px;
+  height:43px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:13px;
+  background:rgba(168,108,255,.12);
+  border:1px solid rgba(168,108,255,.18);
+  font-size:20px;
+}
+
+.app-label{
+  font-size:10px;
+  color:#b7adb9;
+}
+
+.notification{
+  position:absolute;
+  top:9px;
+  right:9px;
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:var(--orange);
+  box-shadow:0 0 12px var(--orange);
+}
+
+/* ---------- WINDOWS ---------- */
+
+.window{
+  position:absolute;
+  inset:15px;
+  top:35px;
+  bottom:15px;
+  z-index:20;
+  border:1px solid var(--line);
+  border-radius:25px;
+  background:rgba(8,7,10,.94);
+  backdrop-filter:blur(30px);
+  transform:translateY(30px) scale(.96);
+  opacity:0;
+  pointer-events:none;
+  transition:.35s cubic-bezier(.2,.8,.2,1);
+  overflow:hidden;
+  box-shadow:0 30px 100px rgba(0,0,0,.7);
+}
+
+.window.open{
+  opacity:1;
+  transform:translateY(0) scale(1);
+  pointer-events:auto;
+}
+
+.window-head{
+  height:62px;
+  padding:0 19px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  border-bottom:1px solid var(--line);
+}
+
+.window-title{
+  font-size:13px;
+  letter-spacing:1px;
+}
+
+.close{
+  width:34px;
+  height:34px;
+  border:1px solid var(--line);
+  border-radius:50%;
+  background:#111014;
+  color:#aaa;
+  font-size:17px;
+}
+
+.window-body{
+  height:calc(100% - 62px);
+  overflow:auto;
+  padding:25px 20px 40px;
+}
+
+/* ---------- WHY YOU ---------- */
+
+.scan{
+  font-family:monospace;
+  font-size:11px;
+  color:#83788a;
+  line-height:2.1;
+}
+
+.scan strong{
+  color:#c899ff;
+}
+
+.result{
+  margin-top:28px;
+  padding:22px;
+  border:1px solid rgba(168,108,255,.2);
+  background:rgba(168,108,255,.05);
+  border-radius:15px;
+  font-family:Georgia,serif;
+  font-size:25px;
+  line-height:1.4;
+}
+
+/* ---------- MEMORIES ---------- */
+
+.memory-stack{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+.memory{
+  padding:20px;
+  min-height:120px;
+  border-radius:16px;
+  border:1px solid var(--line);
+  background:linear-gradient(135deg,rgba(255,255,255,.05),rgba(255,255,255,.015));
+}
+
+.memory small{
+  color:#786d7e;
+  letter-spacing:2px;
+  font-size:8px;
+}
+
+.memory p{
+  margin:13px 0 0;
+  font-family:Georgia,serif;
+  font-size:18px;
+  line-height:1.5;
+}
+
+.memory.special{
+  border-color:rgba(255,157,98,.25);
+}
+
+/* ---------- TIMELINE ---------- */
+
+.timeline{
+  position:relative;
+  padding-left:25px;
+}
+
+.timeline::before{
+  content:"";
+  position:absolute;
+  left:5px;
+  top:5px;
+  bottom:5px;
+  width:1px;
+  background:linear-gradient(#a86cff,#ff9d62,transparent);
+}
+
+.event{
+  position:relative;
+  margin-bottom:36px;
+}
+
+.event::before{
+  content:"";
+  position:absolute;
+  left:-24px;
+  top:4px;
+  width:9px;
+  height:9px;
+  border-radius:50%;
+  background:#a86cff;
+  box-shadow:0 0 15px #a86cff;
+}
+
+.event h3{
+  margin:0 0 8px;
+  font-size:12px;
+  color:#a88db4;
+  letter-spacing:2px;
+}
+
+.event p{
+  margin:0;
+  color:#d3ccd5;
+  line-height:1.7;
+  font-family:Georgia,serif;
+  font-size:17px;
+}
+
+.future{
+  filter:blur(7px);
+  user-select:none;
+}
+
+.future-lock{
+  margin-top:20px;
+  padding:18px;
+  text-align:center;
+  border:1px dashed #3a3340;
+  border-radius:14px;
+  color:#766d7c;
+  font-family:monospace;
+  font-size:10px;
+}
+
+/* ---------- PRAYER ---------- */
+
+.prayer{
+  min-height:100%;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  text-align:center;
+}
+
+.prayer-symbol{
+  font-size:38px;
+  margin-bottom:25px;
+  color:#c898ff;
+}
+
+.prayer h2{
+  font-family:Georgia,serif;
+  font-weight:normal;
+  font-size:29px;
+  line-height:1.35;
+}
+
+.prayer p{
+  color:#a49aa8;
+  line-height:1.9;
+  font-size:14px;
+  margin-top:25px;
+}
+
+/* ---------- DIAGNOSTICS ---------- */
+
+.diagnostic{
+  font-family:monospace;
+  font-size:11px;
+  line-height:2.4;
+  color:#958a99;
+}
+
+.diagnostic .yes{
+  color:#7be5a2;
+}
+
+.diagnostic .danger{
+  color:#ff967e;
+}
+
+.diagnosis{
+  margin-top:25px;
+  border:1px solid rgba(255,121,189,.2);
+  padding:25px;
+  border-radius:15px;
+  text-align:center;
+}
+
+.diagnosis h2{
+  color:#ff8fc9;
+  font-family:Georgia,serif;
+  font-size:27px;
+  font-weight:normal;
+}
+
+.diagnosis p{
+  color:#8f858f;
+  margin-top:10px;
+  font-size:11px;
+}
+
+/* ---------- SECRET ---------- */
+
+.secret{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  min-height:100%;
+  text-align:center;
+}
+
+.secret-lock{
+  font-size:35px;
+  margin-bottom:20px;
+}
+
+.secret h2{
+  font-family:Georgia,serif;
+  font-weight:normal;
+  font-size:29px;
+}
+
+.secret p{
+  color:#8d828f;
+  font-size:12px;
+  line-height:1.8;
+  margin:15px 0 25px;
+}
+
+#password{
+  width:100%;
+  background:#0c0a0e;
+  border:1px solid #302936;
+  color:white;
+  padding:14px;
+  border-radius:10px;
+  outline:none;
+  text-align:center;
+}
+
+#unlockSecret{
+  margin-top:10px;
+  padding:13px;
+  border:1px solid rgba(168,108,255,.3);
+  border-radius:10px;
+  background:rgba(168,108,255,.08);
+  color:#d2b4ff;
+}
+
+.secret-message{
+  display:none;
+  font-family:Georgia,serif;
+  font-size:20px;
+  line-height:1.7;
+  color:#ddd3df;
+}
+
+.secret-message.show{
+  display:block;
+}
+
+/* ---------- SHUTDOWN ---------- */
+
+#shutdown{
+  position:absolute;
+  inset:0;
+  z-index:90;
+  background:#000;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:30px;
+}
+
+.shutdown-inner{
+  max-width:450px;
+}
+
+.shutdown-code{
+  color:#675d6d;
+  font-family:monospace;
+  font-size:10px;
+  line-height:2;
+}
+
+.shutdown-main{
+  margin-top:35px;
+  font-family:Georgia,serif;
+  font-size:28px;
+  line-height:1.6;
+}
+
+.shutdown-main span{
+  color:#d39cff;
+}
+
+.shutdown-final{
+  margin-top:30px;
+  font-size:10px;
+  color:#625968;
+  letter-spacing:3px;
+}
+
+/* ---------- TOAST ---------- */
+
+#toast{
+  position:fixed;
+  left:50%;
+  bottom:42px;
+  transform:translate(-50%,20px);
+  background:#17141a;
+  border:1px solid #332d37;
+  padding:11px 15px;
+  border-radius:10px;
+  font-size:10px;
+  color:#b8aeba;
+  opacity:0;
+  transition:.3s;
+  z-index:200;
+  pointer-events:none;
+  white-space:nowrap;
+}
+
+#toast.show{
+  opacity:1;
+  transform:translate(-50%,0);
+}
+</style>
+</head>
+
+<body>
+
+<div id="app">
+<div id="noise"></div>
+
+<!-- BOOT -->
+<div id="boot">
+  <div class="boot-title">HAYATI.OS</div>
+
+  <div id="bootLines"></div>
+
+  <button id="bootButton" style="display:none">
+    INITIALIZE SYSTEM
+  </button>
+</div>
+
+
+<!-- LOCK -->
+<div id="lock">
+  <div class="clock" id="clock">00:00</div>
+  <div class="date" id="date">26 SEPTEMBER</div>
+
+  <div class="lock-name">
+    Good evening, Hayati.
+  </div>
+
+  <div class="swipe">
+    Swipe upward to unlock
+  </div>
+</div>
+
+
+<!-- HOME -->
+<div id="home">
+
+  <div class="status">
+    <div class="status-left">HAYATI.OS 1.0</div>
+
+    <div class="status-right">
+      <span id="miniTime">20:59</span>
+      <span>⌁</span>
+      <div class="battery"><div></div></div>
+    </div>
+  </div>
+
+  <div class="home-title">
+    Hello, Hayati.
+  </div>
+
+  <div class="home-sub">
+    There are a few things inside.
+  </div>
+
+  <div class="apps">
+
+    <div class="app-icon" data-open="why">
+      <div class="app-symbol">⌁</div>
+      <div class="app-label">WHY YOU</div>
+    </div>
+
+    <div class="app-icon" data-open="memories">
+      <div class="app-symbol">▣</div>
+      <div class="app-label">MEMORIES</div>
+      <div class="notification"></div>
+    </div>
+
+    <div class="app-icon" data-open="timeline">
+      <div class="app-symbol">◷</div>
+      <div class="app-label">TIMELINE</div>
+    </div>
+
+    <div class="app-icon" data-open="prayer">
+      <div class="app-symbol">☾</div>
+      <div class="app-label">PRAYER</div>
+    </div>
+
+    <div class="app-icon" data-open="diagnostic">
+      <div class="app-symbol">⌬</div>
+      <div class="app-label">DIAGNOSTICS</div>
+    </div>
+
+    <div class="app-icon" data-open="secret">
+      <div class="app-symbol">▣</div>
+      <div class="app-label">SECRET</div>
+    </div>
+
+    <div class="app-icon" data-open="shutdown">
+      <div class="app-symbol">⏻</div>
+      <div class="app-label">SYSTEM</div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- WHY YOU -->
+<div class="window" id="why">
+  <div class="window-head">
+    <div class="window-title">WHY YOU</div>
+    <button class="close">×</button>
+  </div>
+
+  <div class="window-body">
+
+    <div class="scan" id="scanText"></div>
+
+    <div class="result">
+      There is no formula for you.
+    </div>
+
+  </div>
+</div>
+
+
+<!-- MEMORIES -->
+<div class="window" id="memories">
+  <div class="window-head">
+    <div class="window-title">MEMORIES</div>
+    <button class="close">×</button>
+  </div>
+
+  <div class="window-body">
+
+    <div class="memory-stack">
+
+      <div class="memory">
+        <small>MEMORY 001</small>
+        <p>
+          Some of my favourite moments
+          probably looked completely ordinary
+          while they were happening.
+        </p>
+      </div>
+
+      <div class="memory">
+        <small>MEMORY 002</small>
+        <p>
+          I like the little things you do
+          that you probably don't even realize
+          I notice.
+        </p>
+      </div>
+
+      <div class="memory">
+        <small>MEMORY 003</small>
+        <p>
+          Sometimes I remember a conversation
+          with you long after the conversation
+          has ended.
+        </p>
+      </div>
+
+      <div class="memory special">
+        <small>PHOTO NOT AVAILABLE</small>
+        <p>
+          Some of my favourite memories
+          don't have pictures.
+        </p>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+
+<!-- TIMELINE -->
+<div class="window" id="timeline">
+  <div class="window-head">
+    <div class="window-title">OUR TIMELINE</div>
+    <button class="close">×</button>
+  </div>
+
+  <div class="window-body">
+
+    <div class="timeline">
+
+      <div class="event">
+        <h3>THEN</h3>
+        <p>
+          Two people who didn't know
+          how important they would become
+          to each other.
+        </p>
+      </div>
+
+      <div class="event">
+        <h3>NOW</h3>
+        <p>
+          Two people still learning,
+          growing, laughing,
+          and figuring things out.
+        </p>
+      </div>
+
+      <div class="event future">
+        <h3>SOMEDAY</h3>
+        <p>
+          Data unavailable.
+        </p>
+      </div>
+
+    </div>
+
+    <div class="future-lock">
+      FUTURE DATA IS NOT ACCESSIBLE.
+      <br><br>
+      Only Allah knows what is written.
+    </div>
+
+  </div>
+</div>
+
+
+<!-- PRAYER -->
+<div class="window" id="prayer">
+  <div class="window-head">
+    <div class="window-title">PRAYER</div>
+    <button class="close">×</button>
+  </div>
+
+  <div class="window-body">
+
+    <div class="prayer">
+
+      <div class="prayer-symbol">☾</div>
+
+      <h2>
+        Some things are better
+        left with Allah.
+      </h2>
+
+      <p>
+        I don't know every road ahead.<br>
+        I don't know every answer.<br>
+        I don't know every chapter.
+        <br><br>
+
+        But I pray that whatever He has
+        written for us comes with peace,
+        patience, growth and barakah.
+        <br><br>
+
+        And if our paths continue together,
+        may we always remember to be grateful
+        for how we got there.
+      </p>
+
+    </div>
+
+  </div>
+</div>
+
+
+<!-- DIAGNOSTICS -->
+<div class="window" id="diagnostic">
+  <div class="window-head">
+    <div class="window-title">SYSTEM DIAGNOSTICS</div>
+    <button class="close">×</button>
+  </div>
+
+  <div class="window-body">
+
+    <div class="diagnostic">
+
+      SUBJECT SCAN INITIATED...<br><br>
+
+      Smile ................
+      <span class="yes">DETECTED</span><br>
+
+      Kindness .............
+      <span class="yes">DETECTED</span><br>
+
+      Beautiful ............
+      <span class="yes">CONFIRMED</span><br>
+
+      Ability to distract
+      one particular person.
+      <span class="danger">EXTREME</span><br>
+
+      Ability to make him
+      randomly smile at his phone.
+      <span class="danger">CRITICAL</span><br>
+
+      Level of importance...
+      <span class="danger">UNMEASURABLE</span>
+
+    </div>
+
+    <div class="diagnosis">
+
+      <h2>IRREPLACEABLE.</h2>
+
+      <p>
+        Further testing unnecessary.
+      </p>
+
+    </div>
+
+  </div>
+</div>
+
+
+<!-- SECRET -->
+<div class="window" id="secret">
+  <div class="window-head">
+    <div class="window-title">RESTRICTED</div>
+    <button class="close">×</button>
+  </div>
+
+  <div class="window-body">
+
+    <div class="secret">
+
+      <div class="secret-lock">⌁</div>
+
+      <h2>One secret.</h2>
+
+      <p>
+        The password is something
+        you call me.
+      </p>
+
+      <input
+        id="password"
+        type="text"
+        autocomplete="off"
+        placeholder="enter password"
+      >
+
+      <button id="unlockSecret">
+        UNLOCK
+      </button>
+
+      <div class="secret-message" id="secretMessage">
+
+        I could fill this entire screen
+        with beautiful words about you.
+        <br><br>
+
+        But honestly...
+        <br><br>
+
+        I think what matters more is that
+        <span style="color:#ff9d62">
+        I notice you.
+        </span>
+        <br><br>
+
+        Your little habits.
+        Your random moments.
+        The things you don't think anyone sees.
+        <br><br>
+
+        I see them.
+        <br><br>
+
+        And I hope you never feel like
+        you have to become somebody else
+        to be worth being cherished.
+        <br><br>
+
+        You are you.
+        <br><br>
+
+        And that is more than enough for me.
+
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+
+<!-- SHUTDOWN -->
+<div id="shutdown">
+
+  <div class="shutdown-inner">
+
+    <div class="shutdown-code">
+
+      HAYATI.OS<br>
+      USER: SARAUNIYA<br>
+      STATUS: LOVED<br>
+      SYSTEM: CLOSING...
+
+    </div>
+
+    <div class="shutdown-main">
+
+      You were never<br>
+      the application.
+      <br><br>
+
+      <span>
+        You were the reason
+        it was created.
+      </span>
+
+    </div>
+
+    <div class="shutdown-final">
+      GOODNIGHT, HAYATI.
+    </div>
+
+  </div>
+
+</div>
+
+
+<div id="toast"></div>
+
+
+<script>
+
+/* =====================================================
+   CLOCK
+===================================================== */
+
+const clock = document.getElementById("clock");
+const miniTime = document.getElementById("miniTime");
+
+function updateClock(){
+
+  const d = new Date();
+
+  let h = d.getHours();
+  let m = d.getMinutes();
+
+  h = String(h).padStart(2,"0");
+  m = String(m).padStart(2,"0");
+
+  const time = h + ":" + m;
+
+  clock.textContent = time;
+  miniTime.textContent = time;
+}
+
+updateClock();
+setInterval(updateClock,1000);
+
+
+/* =====================================================
+   BOOT SEQUENCE
+===================================================== */
+
+const bootLines = document.getElementById("bootLines");
+const bootButton = document.getElementById("bootButton");
+const boot = document.getElementById("boot");
+
+const lines = [
+
+  ["HAYATI.OS kernel loading...", "normal"],
+
+  ["Checking memories........ OK", "green"],
+
+  ["Checking laughter........ OK", "green"],
+
+  ["Checking beautiful moments...", "purple"],
+
+  ["Result: TOO MANY", "orange"],
+
+  ["Searching for reason for installation...", "normal"],
+
+  ["ERROR: reason cannot be quantified.", "orange"],
+
+  ["Continuing anyway...", "purple"]
+
+];
+
+let lineIndex = 0;
+
+function bootNext(){
+
+  if(lineIndex >= lines.length){
+
+    bootButton.style.display="inline-block";
+    return;
+  }
+
+  const line = document.createElement("div");
+
+  line.textContent = lines[lineIndex][0];
+
+  if(lines[lineIndex][1] !== "normal"){
+    line.className = "boot-" + lines[lineIndex][1];
+  }
+
+  bootLines.appendChild(line);
+
+  lineIndex++;
+
+  setTimeout(bootNext,420);
+}
+
+bootNext();
+
+bootButton.addEventListener("click",()=>{
+
+  boot.classList.add("hidden");
+
+});
+
+
+/* =====================================================
+   SWIPE LOCK SCREEN
+===================================================== */
+
+const lock = document.getElementById("lock");
+const home = document.getElementById("home");
+
+let startY = null;
+let unlocked = false;
+
+lock.addEventListener("pointerdown",(e)=>{
+  startY = e.clientY;
+});
+
+lock.addEventListener("pointerup",(e)=>{
+
+  if(startY===null)return;
+
+  const distance = startY - e.clientY;
+
+  if(distance > 70){
+
+    unlocked=true;
+
+    lock.classList.add("unlocked");
+
+    setTimeout(()=>{
+      home.classList.add("visible");
+    },450);
+
+  }
+
+  startY=null;
+
+});
+
+
+/* =====================================================
+   WINDOWS
+===================================================== */
+
+const windows = document.querySelectorAll(".window");
+
+document.querySelectorAll("[data-open]").forEach(app=>{
+
+  app.addEventListener("click",()=>{
+
+    const id = app.dataset.open;
+
+    if(id==="shutdown"){
+
+      document.getElementById("shutdown").style.display="flex";
+      return;
+
+    }
+
+    const win = document.getElementById(id);
+
+    if(win){
+      win.classList.add("open");
+    }
+
+  });
+
+});
+
+
+document.querySelectorAll(".close").forEach(btn=>{
+
+  btn.addEventListener("click",()=>{
+
+    btn.closest(".window").classList.remove("open");
+
+  });
+
+});
+
+
+/* Prevent closing when swiping inside windows */
+windows.forEach(w=>{
+  w.addEventListener("pointerdown",e=>{
+    e.stopPropagation();
+  });
+});
+
+
+/* =====================================================
+   WHY YOU SCAN
+===================================================== */
+
+const scanText = document.getElementById("scanText");
+
+const scanLines = [
+
+  "Scanning subject...",
+  "Smile ................. DETECTED",
+  "Kindness .............. DETECTED",
+  "Voice .................. MEMORABLE",
+  "Presence ............... EFFECTIVE",
+  "Random cuteness ........ HIGH",
+  "Ability to make one",
+  "particular person smile. MAXIMUM",
+  "",
+  "Calculating explanation...",
+  "",
+  "ERROR.",
+  "No mathematical explanation found."
+
+];
+
+let scanDone=false;
+
+document.querySelector('[data-open="why"]').addEventListener("click",()=>{
+
+  if(scanDone)return;
+
+  scanDone=true;
+
+  scanText.innerHTML="";
+
+  scanLines.forEach((line,i)=>{
+
+    setTimeout(()=>{
+
+      const div=document.createElement("div");
+
+      div.textContent=line;
+
+      if(
+        line.includes("DETECTED") ||
+        line.includes("MAXIMUM")
+      ){
+        div.style.color="#7be5a2";
+      }
+
+      if(line==="ERROR."){
+        div.style.color="#ff967e";
+      }
+
+      scanText.appendChild(div);
+
+    },i*150);
+
+  });
+
+});
+
+
+/* =====================================================
+   SECRET PASSWORD
+===================================================== */
+
+const password = document.getElementById("password");
+const unlockSecret = document.getElementById("unlockSecret");
+const secretMessage = document.getElementById("secretMessage");
+
+function tryPassword(){
+
+  /*
+    Convert whatever she types to lowercase first.
+
+    This means:
+    Habiby  = habiby
+    HABIBY  = habiby
+    hAbIbY  = habiby
+
+    So capitalization does NOT matter.
+  */
+
+  const value =
+    password.value.trim().toLowerCase();
+
+
+  /*
+    IMPORTANT:
+    These are also lowercase because
+    "value" has already been converted
+    to lowercase above.
+  */
+
+  const accepted = [
+    "habiby",
+    "my love",
+    "darling",
+    "my darling",
+    "my king"
+  ];
+
+
+  if(accepted.includes(value)){
+
+    secretMessage.classList.add("show");
+
+    password.style.display="none";
+    unlockSecret.style.display="none";
+
+    showToast("ACCESS GRANTED.");
+
+  }else{
+
+    password.value="";
+
+    showToast("ACCESS DENIED 😂");
+
+    password.animate(
+      [
+        {transform:"translateX(0)"},
+        {transform:"translateX(-7px)"},
+        {transform:"translateX(7px)"},
+        {transform:"translateX(0)"}
+      ],
+      {duration:300}
+    );
+
+  }
+
+}
+
+unlockSecret.addEventListener("click",tryPassword);
+
+password.addEventListener("keydown",e=>{
+  if(e.key==="Enter")tryPassword();
+});
+
+
+/* =====================================================
+   TOAST
+===================================================== */
+
+const toast = document.getElementById("toast");
+let toastTimer;
+
+function showToast(text){
+
+  toast.textContent=text;
+  toast.classList.add("show");
+
+  clearTimeout(toastTimer);
+
+  toastTimer=setTimeout(()=>{
+    toast.classList.remove("show");
+  },1800);
+
+}
+
+
+/* =====================================================
+   EASTER EGG:
+   TAP HOME TITLE 5 TIMES
+===================================================== */
+
+let titleTaps=0;
+
+document.querySelector(".home-title").addEventListener("click",()=>{
+
+  titleTaps++;
+
+  if(titleTaps===5){
+
+    showToast("You found something that wasn't supposed to be found.");
+
+    document.querySelector(".home-title").textContent =
+      "You found me.";
+
+    titleTaps=0;
+  }
+
+});
+
+
+/* =====================================================
+   ESCAPE / BACK
+===================================================== */
+
+document.addEventListener("keydown",e=>{
+
+  if(e.key==="Escape"){
+
+    windows.forEach(w=>{
+      w.classList.remove("open");
+    });
+
+  }
+
+});
+
+
+/* =====================================================
+   FINAL TOUCH:
+   LONG PRESS SYSTEM APP
+===================================================== */
+
+let holdTimer;
+
+const systemApp =
+  document.querySelector('[data-open="shutdown"]');
+
+systemApp.addEventListener("pointerdown",()=>{
+
+  holdTimer=setTimeout(()=>{
+
+    showToast("System is already yours.");
+
+  },1000);
+
+});
+
+systemApp.addEventListener("pointerup",()=>{
+  clearTimeout(holdTimer);
+});
+
+systemApp.addEventListener("pointerleave",()=>{
+  clearTimeout(holdTimer);
+});
+
+</script>
+
+</body>
+</html>
